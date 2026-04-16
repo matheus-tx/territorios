@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 
 # --- CONFIGURAÇÃO ---
-TOKEN_ACESSO = "sua_chave_secreta_aqui"  # Escolha algo difícil
-ID_PLANILHA = "COLE_O_ID_DA_SUA_PLANILHA_AQUI"
+ID_PLANILHA = st.secrets["id_sheets"]
+TOKEN_ACESSO = st.secrets["meu_token"]
 URL_DADOS = f"https://docs.google.com/spreadsheets/d/{ID_PLANILHA}/export?format=csv"
 
 # --- SEGURANÇA POR URL ---

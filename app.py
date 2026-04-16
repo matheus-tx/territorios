@@ -44,7 +44,7 @@ def carregar_dados():
 df = carregar_dados()
 
 # --- 5. CABEÇALHO ---
-st.title("🚀 Dashboard de Performance")
+st.title("Dashboard de controle de territórios")
 st.caption(f"Dados sincronizados do Google Sheets | Atualizado em: {pd.Timestamp.now().strftime('%d/%m %H:%M')}")
 st.divider()
 

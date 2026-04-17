@@ -1,3 +1,5 @@
 streamlit
-pandas
+polars
 plotly
+unidecode
+python-dateutil

@@ -153,7 +153,7 @@ def processar_conclusoes(cartoes, registros):
             data_conclusao = df_conclusao['Término'].max()  # O último cartão a ser concluído no período
             duracao = relativedelta(data_conclusao, data_inicio)
             lista_periodos.append({
-                'Número': id_periodo,
+                'Período': id_periodo,
                 'Status': 'Fechado',
                 'Data de início': data_inicio,
                 'Data de conclusão': None,
@@ -165,7 +165,7 @@ def processar_conclusoes(cartoes, registros):
             periodo_concluido = False
             duracao = relativedelta(datetime.now().date(), data_inicio)
             lista_periodos.append({
-                'Número': id_periodo,
+                'Período': id_periodo,
                 'Status': 'Aberto',
                 'Data de início': data_inicio,
                 'Data de conclusão': None,

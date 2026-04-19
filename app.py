@@ -17,10 +17,10 @@ st.set_page_config(
 )
 
 # --- 2. SEGURANÇA (Mantendo o que já funciona) ---
-TOKEN_ACESSO = st.secrets["meu_token"]
-if st.query_params.get("token") != TOKEN_ACESSO:
-    st.error("Acesso não autorizado.")
-    st.stop()
+# TOKEN_ACESSO = st.secrets["meu_token"]
+# if st.query_params.get("token") != TOKEN_ACESSO:
+#     st.error("Acesso não autorizado.")
+#     st.stop()
 
 # --- 3. ESTILO CSS (O "pulo do gato" para ficar bonito) ---
 st.markdown("""
@@ -30,7 +30,7 @@ st.markdown("""
     }
     div[data-testid="stMetricValue"] {
         font-size: 28px;
-        color: #007bff;
+        color: rgba(219, 15, 49);
     }
     .stPlotlyChart {
         border-radius: 10px;
@@ -62,64 +62,62 @@ if periodos not in st.session_state:
 # --- 5. CABEÇALHO ---
 st.title("Dashboard de controle de territórios - Praia do Futuro")
 st.caption(f"Dados sincronizados do Google Sheets | Atualizado em: {datetime.now().strftime('%d/%m %H:%M')}")
-st.divider()
+# st.divider()
 
 # --- 6. KPIs / MÉTRICAS (Os "quadradinhos" do topo) ---
 # Substitua 'Vendas' e 'Meta' pelos nomes reais das suas colunas
-col1, col2, col3, col4, col5 = st.columns(5)
-with col1:
-    st.metric(
-        "Total de cartões",
-        cartoes_['ID'].n_unique()
-    )
-with col2:
-    st.metric(
-        "Cartões com registro",
-        cartoes_.filter(pl.col('Fechamento').is_not_null())['ID'].n_unique()
-    )
-with col3:
-    st.metric(
-        "Período atual",
-        f'{periodos["Número"].max()}º período'
-    )
-with col4:
-    st.metric(
-        "Duração média",
-        f'{round(registros_.filter(pl.col("Término").is_not_null())["Duração"].mean())} semanas'
-    )
-with col5:
-    st.metric(
-        "Intervalo médio",
-        f'{round(registros_.filter(pl.col("Intervalo").is_not_null())["Intervalo"].mean())} semanas'
-    )
-
-st.write("##") # Espaçamento
+with st.container(border=True):
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        st.metric(
+            "Total de cartões",
+            cartoes_['ID'].n_unique()
+        )
+    with col2:
+        st.metric(
+            "Cartões com registro",
+            cartoes_.filter(pl.col('Fechamento').is_not_null())['ID'].n_unique()
+        )
+    with col3:
+        st.metric(
+            "Período atual",
+            f'{periodos["Período"].max()}º período'
+        )
+    with col4:
+        st.metric(
+            "Duração média",
+            f'{round(registros_.filter(pl.col("Término").is_not_null())["Duração"].mean())} semanas'
+        )
+    with col5:
+        st.metric(
+            "Intervalo médio",
+            f'{round(registros_.filter(pl.col("Intervalo").is_not_null())["Intervalo"].mean())} semanas'
+        )
 
 # --- 7. ÁREA DE GRÁFICOS ---
 
 # --- 8. TABELA DETALHADA ---
-st.subheader("Territórios prioritários")
-
 #Filtros
-col1, col2 = st.columns(2)
-with col1:
-    opcoes_filtro = cartoes_['Noturno'].unique().to_list()
-    noturnos_selecionados = st.segmented_control(
-        'Território noturno',
-        options=opcoes_filtro,
-        default=opcoes_filtro,
-        selection_mode='multi',
-        key='filtro_noturno'
-    )
-with col2:
-    opcoes_filtro = cartoes_['Território'].unique().to_list()
-    territorios_selecionados = st.segmented_control(
-        'Território',
-        options=opcoes_filtro,
-        default=opcoes_filtro,
-        selection_mode='multi',
-        key='filtro_territorio'
-    )
+with st.container(border=True):
+    col1, col2 = st.columns(2)
+    with col1:
+        opcoes_filtro = cartoes_['Noturno'].unique().to_list()
+        noturnos_selecionados = st.pills(
+            'Pregação noturna',
+            options=opcoes_filtro,
+            default=opcoes_filtro,
+            selection_mode='multi',
+            key='filtro_noturno'
+        )
+    with col2:
+        opcoes_filtro = cartoes_['Território'].unique().to_list()
+        territorios_selecionados = st.pills(
+            'Território',
+            options=opcoes_filtro,
+            default=opcoes_filtro,
+            selection_mode='multi',
+            key='filtro_territorio'
+        )
 
 # Se o usuário desmarcar tudo, mostra tudo
 if not territorios_selecionados:
@@ -138,18 +136,20 @@ df_base = cartoes_.filter(
 df_view = formatar_tabela(df_base).drop(pl.col(['Noturno', 'Tem becos?']))
 
 # Exibição
-st.dataframe(
-    df_view
-    .to_pandas()
-    .fillna('-')
-    .style
-    .apply(style_row_by_interval, axis=1, vmin=0, vmax=52)
-    .format(precision=0)
-    .format({
-        'Intervalo': lambda x: '-' if (pd.isna(x) or np.isinf(x)) else
-            f'{x:.0f} semanas' if x > 1 else f'{x:.0f} semana',
-        'Intervalo (becos)': lambda x: '-' if (pd.isna(x) or np.isinf(x)) else
-            f'{x:.0f} semanas' if x > 1 else f'{x:.0f} semana'
-    }),
-    use_container_width=True
-)
+with st.container(border=True):
+    st.caption('Cartões prioritários')
+    st.dataframe(
+        df_view
+        .to_pandas()
+        .fillna('-')
+        .style
+        .apply(style_row_by_interval, axis=1, vmin=0, vmax=52)
+        .format(precision=0)
+        .format({
+            'Intervalo': lambda x: '-' if (pd.isna(x) or np.isinf(x)) else
+                f'{x:.0f} semanas' if x > 1 else f'{x:.0f} semana',
+            'Intervalo (becos)': lambda x: '-' if (pd.isna(x) or np.isinf(x)) else
+                f'{x:.0f} semanas' if x > 1 else f'{x:.0f} semana'
+        }),
+        use_container_width=True
+    )
